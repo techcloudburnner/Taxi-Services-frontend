@@ -5,9 +5,9 @@ import axios from "axios";
 import { CarCard } from "@/components/fleet/CarCard";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { API_ENDPOINTS } from "@/config/api/constants";
-import type { Car, APICar, APICarType } from "@/data/cars";
+import type { Car, APICar } from "@/data/cars";
 import { CARS, transformAPICarToCar } from "@/data/cars";
-import { useCarTypes } from "@/hooks/useCarTypes"; // Import the hook
+import { useCarTypes } from "@/hooks/useCarTypes";
 
 export const Route = createFileRoute("/fleet")({
   head: () => ({
@@ -26,12 +26,12 @@ export const Route = createFileRoute("/fleet")({
 function FleetPage() {
   const [cars, setCars] = useState<Car[]>([]);
   const [allCars, setAllCars] = useState<Car[]>([]);
-  const [carTypes, setCarTypes] = useState<string[]>([]); // Add this state
+  const [carTypes, setCarTypes] = useState<string[]>([]);
   const [filter, setFilter] = useState<string>("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usingFallback, setUsingFallback] = useState(false);
-  const { carTypes: apiCarTypes, loading: typesLoading } = useCarTypes();
+  const { carTypes: apiCarTypes } = useCarTypes();
 
   useEffect(() => {
     fetchFleetData();
@@ -43,7 +43,6 @@ function FleetPage() {
       setError(null);
       setUsingFallback(false);
 
-      // Fetch cars from API
       const carsResponse = await axios.get(`${API_ENDPOINTS.CARS.BASE}?page=0&size=50`);
       
       let carsData: APICar[] = [];
@@ -53,15 +52,21 @@ function FleetPage() {
         carsData = carsResponse.data;
       }
 
-      // Transform API cars
-      const transformedCars = carsData.map(transformAPICarToCar);
-      console.log('Fleet cars loaded:', transformedCars.length);
+      // ✅ Transform AND filter ONLY active cars
+      const transformedCars = carsData
+        .map(transformAPICarToCar)
+        .filter(
+          car =>
+            car.status &&
+            car.status.toLowerCase() === "active"
+        );
+
+      console.log('Active Cars:', transformedCars.length);
 
       if (transformedCars.length > 0) {
         setAllCars(transformedCars);
         setCars(transformedCars);
         
-        // Extract unique categories from API data
         const categories = [...new Set(transformedCars.map(car => car.category))];
         setCarTypes(categories);
       } else {
@@ -77,11 +82,17 @@ function FleetPage() {
 
   const useFallbackData = () => {
     setUsingFallback(true);
-    setAllCars(CARS);
-    setCars(CARS);
     
-    // Extract unique categories from static data
-    const categories = [...new Set(CARS.map(car => car.category))];
+    // ✅ Filter static data - only active cars
+    const activeStaticCars = CARS.filter(
+      car => car.status && car.status.toLowerCase() === "active"
+    );
+    const carsToUse = activeStaticCars.length > 0 ? activeStaticCars : CARS;
+    
+    setAllCars(carsToUse);
+    setCars(carsToUse);
+    
+    const categories = [...new Set(carsToUse.map(car => car.category))];
     setCarTypes(categories);
   };
 
@@ -94,7 +105,6 @@ function FleetPage() {
     }
   };
 
-  // Use API car types if available, otherwise use extracted categories
   const FILTERS = ["All", ...(apiCarTypes.length > 0 ? apiCarTypes : carTypes)];
 
   // Loading skeleton
@@ -110,14 +120,12 @@ function FleetPage() {
             <p className="mt-4 text-foreground/70">Loading our fleet...</p>
           </div>
 
-          {/* Skeleton filters */}
           <div className="mt-10 flex flex-wrap gap-2">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="h-10 w-24 animate-pulse rounded-full bg-muted" />
             ))}
           </div>
 
-          {/* Skeleton grid */}
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse rounded-2xl border border-border bg-card">
@@ -250,7 +258,7 @@ function FleetPage() {
                     className="col-span-full text-center py-12"
                   >
                     <p className="text-lg text-foreground/70">
-                      No cars found in this category.
+                      No active cars found in this category.
                     </p>
                     <button
                       onClick={() => handleFilterChange("All")}

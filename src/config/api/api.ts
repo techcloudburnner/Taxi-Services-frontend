@@ -2,7 +2,10 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-const API_BASE_URL = 'https://customlogicinnovation.com/rudrabannataxiservices/api';
+// const API_BASE_URL = 'https://customlogicinnovation.com/rudrabannataxiservices/api';
+const API_BASE_URL = 'http://66.116.224.225:8082/api';
+
+
 
 class ApiService {
   private api: AxiosInstance;

@@ -77,7 +77,9 @@ function GalleryPage() {
         const apiImages = response.data.map((img) => ({
           src: img.imagePath.startsWith('http') 
             ? img.imagePath 
-            : `https://customlogicinnovation.com/rudrabannataxiservices/${img.imagePath.replace(/^\/+/, '')}`,
+          : `http://66.116.224.225:8082/${img.imagePath.replace(/^\/+/, '')}`,
+
+            // : `https://customlogicinnovation.com/rudrabannataxiservices/${img.imagePath.replace(/^\/+/, '')}`,
           label: img.caption || 'Gallery Image',
         }));
         setImages(apiImages);

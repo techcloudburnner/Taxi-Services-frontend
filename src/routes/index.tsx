@@ -47,44 +47,90 @@ function Index() {
   }, []);
 
   const fetchAllCars = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      setUsingFallback(false);
+  try {
+    setLoading(true);
+    setError(null);
+    setUsingFallback(false);
 
-      const response = await axios.get(`${API_ENDPOINTS.CARS.BASE}?page=0&size=50`);
-      
-      let carsData: APICar[] = [];
-      if (response.data?.content) {
-        carsData = response.data.content;
-      } else if (Array.isArray(response.data)) {
-        carsData = response.data;
-      }
-      
-      if (carsData.length > 0) {
-        const transformedCars = carsData
-          .map(transformAPICarToCar)
-          .filter(car => car && car.name);
-        
-        setAllCars(transformedCars);
-        setDisplayCars(transformedCars.slice(0, 8)); // Show up to 8 on homepage
-      } else {
-        useFallback();
-      }
-    } catch (err) {
-      console.error('Error fetching cars:', err);
-      useFallback();
-    } finally {
-      setLoading(false);
+    const response = await axios.get(`${API_ENDPOINTS.CARS.BASE}?page=0&size=50`);
+    
+    let carsData: APICar[] = [];
+    if (response.data?.content) {
+      carsData = response.data.content;
+    } else if (Array.isArray(response.data)) {
+      carsData = response.data;
     }
-  };
+    
+    if (carsData.length > 0) {
+      // ✅ Transform AND filter ONLY ACTIVE cars
+      const transformedCars = carsData
+        .map(transformAPICarToCar)
+        .filter(car => 
+          car && 
+          car.name && 
+          car.status && 
+          car.status.toLowerCase() === "active"  // 🔥 Only active cars
+        );
+      
+      setAllCars(transformedCars);
+      setDisplayCars(transformedCars.slice(0, 8));
+    } else {
+      useFallback();
+    }
+  } catch (err) {
+    console.error('Error fetching cars:', err);
+    useFallback();
+  } finally {
+    setLoading(false);
+  }
+};
+  // const fetchAllCars = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+  //     setUsingFallback(false);
+
+  //     const response = await axios.get(`${API_ENDPOINTS.CARS.BASE}?page=0&size=50`);
+      
+  //     let carsData: APICar[] = [];
+  //     if (response.data?.content) {
+  //       carsData = response.data.content;
+  //     } else if (Array.isArray(response.data)) {
+  //       carsData = response.data;
+  //     }
+      
+  //     if (carsData.length > 0) {
+  //       const transformedCars = carsData
+  //         .map(transformAPICarToCar)
+  //         .filter(car => car && car.name);
+        
+  //       setAllCars(transformedCars);
+  //       setDisplayCars(transformedCars.slice(0, 8)); // Show up to 8 on homepage
+  //     } else {
+  //       useFallback();
+  //     }
+  //   } catch (err) {
+  //     console.error('Error fetching cars:', err);
+  //     useFallback();
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const useFallback = () => {
+  //   setUsingFallback(true);
+  //   setAllCars(CARS);
+  //   setDisplayCars(CARS.slice(0, 8));
+  // };
 
   const useFallback = () => {
-    setUsingFallback(true);
-    setAllCars(CARS);
-    setDisplayCars(CARS.slice(0, 8));
-  };
-
+  setUsingFallback(true);
+  // ✅ Only active static cars
+  const activeCars = CARS.filter(car => car.status && car.status.toLowerCase() === "active");
+  const carsToUse = activeCars.length > 0 ? activeCars : CARS;
+  setAllCars(carsToUse);
+  setDisplayCars(carsToUse.slice(0, 8));
+};
   // Get unique categories from cars
   const carCategories = useMemo(() => {
     const categories = [...new Set(allCars.map(car => car.category))];

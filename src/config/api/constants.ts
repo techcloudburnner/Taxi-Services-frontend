@@ -1,6 +1,7 @@
 // src/config/api.constants.ts
 
-const API_BASE_URL = 'https://customlogicinnovation.com/rudrabannataxiservices/api';
+// const API_BASE_URL = 'https://customlogicinnovation.com/rudrabannataxiservices/api';
+const API_BASE_URL = 'http://66.116.224.225:8082/api';
 
 export const API_ENDPOINTS = {
   ADMIN: {
@@ -12,19 +13,54 @@ export const API_ENDPOINTS = {
     COUNT: `${API_BASE_URL}/admins/count`,
     BY_ID: (id: number) => `${API_BASE_URL}/admins/${id}`,
   },
-  CARS: {
+
+   CARS: {
     BASE: `${API_BASE_URL}/cars`,
     BY_ID: (id: number) => `${API_BASE_URL}/cars/${id}`,
     BY_SLUG: (slug: string) => `${API_BASE_URL}/cars/slug/${slug}`,
+
     FILTER: `${API_BASE_URL}/cars/filter`,
     FEATURED: `${API_BASE_URL}/cars/featured`,
-    BY_TYPE: (typeId: number) => `${API_BASE_URL}/cars/type/${typeId}`,
+
+    // NEW
+    ACTIVE: `${API_BASE_URL}/cars/active`,
+    DEACTIVE: `${API_BASE_URL}/cars/deactive`,
+
+    BY_TYPE: (typeId: number) =>
+      `${API_BASE_URL}/cars/type/${typeId}`,
+
     SEARCH: `${API_BASE_URL}/cars/search`,
     PRICE_RANGE: `${API_BASE_URL}/cars/price-range`,
     COUNT: `${API_BASE_URL}/cars/count`,
+
     WITH_IMAGE: `${API_BASE_URL}/cars/with-image`,
-    UPDATE_WITH_IMAGE: (id: number) => `${API_BASE_URL}/cars/${id}/with-image`,
+    UPDATE_WITH_IMAGE: (id: number) =>
+      `${API_BASE_URL}/cars/${id}/with-image`,
+
+    TOGGLE_STATUS: (id: number) =>
+      `${API_BASE_URL}/cars/${id}/toggle-status`,
+
+    SET_STATUS: (id: number) =>
+      `${API_BASE_URL}/cars/${id}/status`,
   },
+
+
+  // CARS: {
+  //   BASE: `${API_BASE_URL}/cars`,
+  //   BY_ID: (id: number) => `${API_BASE_URL}/cars/${id}`,
+  //   BY_SLUG: (slug: string) => `${API_BASE_URL}/cars/slug/${slug}`,
+  //   FILTER: `${API_BASE_URL}/cars/filter`,
+  //   FEATURED: `${API_BASE_URL}/cars/featured`,
+  //   BY_TYPE: (typeId: number) => `${API_BASE_URL}/cars/type/${typeId}`,
+  //   SEARCH: `${API_BASE_URL}/cars/search`,
+  //   PRICE_RANGE: `${API_BASE_URL}/cars/price-range`,
+  //   COUNT: `${API_BASE_URL}/cars/count`,
+  //   WITH_IMAGE: `${API_BASE_URL}/cars/with-image`,
+  //   UPDATE_WITH_IMAGE: (id: number) => `${API_BASE_URL}/cars/${id}/with-image`,
+  //    TOGGLE_STATUS: (id: number) => `${API_BASE_URL}/cars/${id}/toggle-status`,
+  //   SET_STATUS: (id: number) => `${API_BASE_URL}/cars/${id}/status`,
+  //   ACTIVE_CARS: `${API_BASE_URL}/cars/active`,
+  // },
   BOOKINGS: {
     BASE: `${API_BASE_URL}/bookings`,
     BY_ID: (id: number) => `${API_BASE_URL}/bookings/${id}`,
@@ -80,4 +116,5 @@ export const API_HEADERS = {
   },
 };
 
-export const IMAGE_BASE_URL = 'https://customlogicinnovation.com/rudrabannataxiservices';
+// export const IMAGE_BASE_URL = 'https://customlogicinnovation.com/rudrabannataxiservices';
+export const IMAGE_BASE_URL = 'http://66.116.224.225:8082';

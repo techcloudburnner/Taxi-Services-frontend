@@ -1216,7 +1216,7 @@ function generatePDFReceipt(booking: BookingDetails): string {
       background: #fafafa;
       padding: 20px 30px;
       text-align: center;
-      border-top: 1px solid #eee;
+      border-top: 1px solid  #eee;
     }
     .footer .company {
       font-weight: 700;
@@ -1239,7 +1239,7 @@ function generatePDFReceipt(booking: BookingDetails): string {
     <div class="header">
       <div class="brand-name">${BRAND.name}</div>
       <h1>Booking Receipt</h1>
-      <div class="status-badge">✓ Confirmed</div>
+     
     </div>
     
     <div class="content">
@@ -1306,10 +1306,7 @@ function generatePDFReceipt(booking: BookingDetails): string {
         </div>
       </div>
 
-      <div class="fare-box">
-        <span class="fare-label">Estimated Fare</span>
-        <span class="fare-amount">₹${booking.estimate.toLocaleString('en-IN')}</span>
-      </div>
+    
       <div class="disclaimer">* Excluding tolls, parking & applicable taxes</div>
 
       <div class="alert-box">
@@ -1351,8 +1348,7 @@ function BookingPage() {
   });
 
   useEffect(() => { fetchCars(); }, []);
-
-  const fetchCars = async () => {
+   const fetchCars = async () => {
     try {
       setLoading(true);
       let carsData: APICar[] = [];
@@ -1364,18 +1360,51 @@ function BookingPage() {
       
       if (carsData.length > 0) {
         setApiCars(carsData);
-        const transformed = carsData.map(transformAPICarToCar);
+        // ✅ Transform AND filter ONLY ACTIVE cars
+        const transformed = carsData
+          .map(transformAPICarToCar)
+          .filter(car => car.status && car.status.toLowerCase() === "active");
         setCars(transformed);
         setCarId(preselected && transformed.find(c => c.id === preselected) ? preselected : transformed[0]?.id || "");
       } else {
-        setCars(CARS);
-        setCarId(preselected || CARS[0]?.id || "");
+        // ✅ Filter static data too
+        const activeStaticCars = CARS.filter(car => car.status && car.status.toLowerCase() === "active");
+        const carsToUse = activeStaticCars.length > 0 ? activeStaticCars : CARS;
+        setCars(carsToUse);
+        setCarId(preselected || carsToUse[0]?.id || "");
       }
     } catch (err) {
-      setCars(CARS);
-      setCarId(preselected || CARS[0]?.id || "");
+      const activeStaticCars = CARS.filter(car => car.status && car.status.toLowerCase() === "active");
+      const carsToUse = activeStaticCars.length > 0 ? activeStaticCars : CARS;
+      setCars(carsToUse);
+      setCarId(preselected || carsToUse[0]?.id || "");
     } finally { setLoading(false); }
   };
+
+  // const fetchCars = async () => {
+  //   try {
+  //     setLoading(true);
+  //     let carsData: APICar[] = [];
+  //     try {
+  //       const response = await axios.get(`${API_ENDPOINTS.CARS.BASE}?page=0&size=50`);
+  //       if (response.data.content) carsData = response.data.content;
+  //       else if (Array.isArray(response.data)) carsData = response.data;
+  //     } catch (err) { console.warn('API fetch failed, using static data'); }
+      
+  //     if (carsData.length > 0) {
+  //       setApiCars(carsData);
+  //       const transformed = carsData.map(transformAPICarToCar);
+  //       setCars(transformed);
+  //       setCarId(preselected && transformed.find(c => c.id === preselected) ? preselected : transformed[0]?.id || "");
+  //     } else {
+  //       setCars(CARS);
+  //       setCarId(preselected || CARS[0]?.id || "");
+  //     }
+  //   } catch (err) {
+  //     setCars(CARS);
+  //     setCarId(preselected || CARS[0]?.id || "");
+  //   } finally { setLoading(false); }
+  // };
 
   const car = useMemo(() => cars.find((c) => c.id === carId) || cars[0], [carId, cars]);
   const estimate = useMemo(() => car ? Math.max(car.pricePerKm * form.km, car.pricePerKm * 50) : 0, [car, form.km]);
@@ -1476,7 +1505,7 @@ function BookingPage() {
         pickupDate: form.date,
         pickupTime: formattedTime,
         passengerCount: form.passengers,
-        specialNote: `Trip: ${tripType}, Distance: ${form.km}km${form.note ? ', ' + form.note : ''}`,
+        specialNote: `Trip: ${tripType}${form.note ? ', ' + form.note : ''}`,
       }, { timeout: 8000 });
       
       if (response.data) {
@@ -1534,7 +1563,7 @@ function BookingPage() {
               </motion.div>
               
               <h1 className="font-display text-4xl sm:text-5xl tracking-tight">
-                Booking <span className="text-gradient">Confirmed!</span>
+                Booking <span className="text-gradient">STATUS!</span>
               </h1>
               <p className="mt-3 text-foreground/70 max-w-md mx-auto">
                 Thank you for choosing {BRAND.name}. Your booking has been received successfully.
@@ -1613,14 +1642,14 @@ function BookingPage() {
                 </div>
               </div>
 
-              {/* Fare Estimate */}
-              <div className="mt-6 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 p-5 text-white">
+              {/* Fare Estimate */} 
+              {/* <div className="mt-6 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 p-5 text-white">
                 <div className="flex items-center justify-between">
                   <span className="text-sm opacity-90">Estimated Fare</span>
                   <span className="text-3xl font-bold">₹{confirmedBooking.estimate.toLocaleString('en-IN')}</span>
                 </div>
                 <p className="text-xs opacity-75 mt-1">* Excluding tolls, parking & state tax</p>
-              </div>
+              </div> */}
             </motion.div>
 
             {/* Action Buttons */}
@@ -1754,9 +1783,9 @@ function BookingPage() {
                 </ul>
                 <div className="mt-6 rounded-2xl bg-surface p-4">
                   <div className="flex justify-between text-sm"><span className="text-muted-foreground">Rate</span><span className="font-medium">₹{car.pricePerKm} / km</span></div>
-                  <div className="mt-2 flex justify-between text-sm"><span className="text-muted-foreground">Distance</span><span className="font-medium">{form.km} km</span></div>
+                  {/* <div className="mt-2 flex justify-between text-sm"><span className="text-muted-foreground">Distance</span><span className="font-medium">{form.km} km</span></div>
                   <div className="mt-3 border-t border-border pt-3 flex justify-between"><span className="font-display text-lg">Estimate</span><span className="font-display text-2xl text-gradient">₹{estimate.toLocaleString("en-IN")}</span></div>
-                  <p className="mt-2 text-[11px] text-muted-foreground">+ tolls, parking, state-tax at actuals</p>
+                  <p className="mt-2 text-[11px] text-muted-foreground">+ tolls, parking, state-tax at actuals</p> */}
                 </div>
               </>
             )}

@@ -31,6 +31,7 @@ export interface Car {
   gallery: string[];
   features: string[];
  description?: string; // Add description field
+  status?: string; // ADD THIS
 
 }
 
@@ -49,6 +50,8 @@ export interface APICar {
   isFeatured: boolean;
   createdAt: string;
   updatedAt: string;
+    status: string; // ADD THIS
+
 }
 
 export interface APICarType {
@@ -71,7 +74,8 @@ export const fetchCarTypes = async (): Promise<string[]> => {
   }
 
   try {
-    const API_BASE_URL = 'https://customlogicinnovation.com/rudrabannataxiservices/api';
+    // const API_BASE_URL = 'https://customlogicinnovation.com/rudrabannataxiservices/api';
+    const API_BASE_URL = 'http://66.116.224.225:8082/api';
     const response = await fetch(`${API_BASE_URL}/car-types/active`);
     const data = await response.json();
     
@@ -228,7 +232,9 @@ export const CARS: Car[] = [
 export const getImageUrl = (imagePath: string | null): string => {
   if (!imagePath) return '/placeholder-car.png';
   if (imagePath.startsWith('http')) return imagePath;
-  return `https://customlogicinnovation.com/rudrabannataxiservices/${imagePath.replace(/^\/+/, '')}`;
+  // return `https://customlogicinnovation.com/rudrabannataxiservices/${imagePath.replace(/^\/+/, '')}`;
+  return `http://66.116.224.225:8082/${imagePath.replace(/^\/+/, '')}`;
+
 };
 
 export const extractFeatures = (description: string | null): string[] => {
@@ -256,6 +262,7 @@ export const transformAPICarToCar = (apiCar: APICar): Car => {
     gallery: [getImageUrl(apiCar.imagePath)],
     features: extractFeatures(apiCar.description),
      description: apiCar.description?.trim() || '', // Add description from API
+    status: apiCar.status // IMPORTANT
 
     
   };
